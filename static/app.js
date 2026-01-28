@@ -1,6 +1,6 @@
 const currencyFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
-  currency: 'BGN',
+  currency: 'EUR',
   maximumFractionDigits: 2,
 });
 
@@ -62,8 +62,12 @@ function computeCumulativeCosts(options) {
     ? 0
     : monthlyPayment(purchasePrice - effectiveDown, annualInterestRate, loanTermYears);
 
+  const spendSeries = [];
+  const netSeries = [];
+  const valueSeries = [];
   let runningTotal = 0;
-  const cumulative = [];
+  let grossTotal = 0;
+  const valueStep = projectionYears > 0 ? (purchasePrice - resaleValue) / projectionYears : 0;
   for (let year = 1; year <= projectionYears; year += 1) {
     let yearCost = 0;
     if (year === 1) {
@@ -74,13 +78,21 @@ function computeCumulativeCosts(options) {
     }
     const inflationFactor = Math.pow(1 + inflationRate / 100, year - 1);
     yearCost += annualRunning * inflationFactor;
+    grossTotal += yearCost;
+
+    let displayCost = yearCost;
     if (year === projectionYears) {
-      yearCost -= resaleValue;
+      displayCost -= resaleValue;
     }
-    runningTotal += yearCost;
-    cumulative.push(Number(runningTotal.toFixed(2)));
+    runningTotal += displayCost;
+    spendSeries.push(Number(runningTotal.toFixed(2)));
+
+    const remainingValue = purchasePrice - valueStep * year;
+    const adjustedValue = projectionYears > 0 ? Math.max(remainingValue, resaleValue) : resaleValue;
+    netSeries.push(Number((grossTotal - adjustedValue).toFixed(2)));
+    valueSeries.push(Number(adjustedValue.toFixed(2)));
   }
-  return cumulative;
+  return { spendSeries, netSeries, valueSeries };
 }
 
 function computeDiscountedTotalCost(options) {
@@ -146,7 +158,7 @@ function calculateScenario(input, projectionYears, inflationRate, discountRate) 
 
   const totalCost = effectiveDown + totalLoanPayments + totalRunningCosts - resaleValue;
   const averageAnnual = projectionYears > 0 ? totalCost / projectionYears : 0;
-  const cumulativeCosts = computeCumulativeCosts({
+  const { spendSeries, netSeries, valueSeries } = computeCumulativeCosts({
     purchasePrice: input.purchasePrice,
     downPayment: input.downPayment,
     loanTermYears: input.loanTermYears,
@@ -181,7 +193,9 @@ function calculateScenario(input, projectionYears, inflationRate, discountRate) 
     resaleValue,
     totalCost,
     averageAnnual,
-    cumulativeCosts,
+    spendSeries,
+    netSeries,
+    valueSeries,
     discountedTotal,
   };
 }
@@ -191,6 +205,14 @@ function formatCurrency(value) {
 }
 
 function updateResults(resultSection, newResult, oldResult, comparisonMessage, discountRate, chart) {
+  const newNet = newResult.netSeries.length
+    ? newResult.netSeries[newResult.netSeries.length - 1]
+    : 0;
+  const oldNet = oldResult.netSeries.length
+    ? oldResult.netSeries[oldResult.netSeries.length - 1]
+    : 0;
+  const saleYear = newResult.spendSeries.length;
+
   const ids = {
     'new-monthly-payment': newResult.monthlyPayment,
     'old-monthly-payment': oldResult.monthlyPayment,
@@ -204,6 +226,8 @@ function updateResults(resultSection, newResult, oldResult, comparisonMessage, d
     'old-total': oldResult.totalCost,
     'new-average': newResult.averageAnnual,
     'old-average': oldResult.averageAnnual,
+    'new-net': newNet,
+    'old-net': oldNet,
   };
 
   Object.entries(ids).forEach(([id, value]) => {
@@ -223,7 +247,7 @@ function updateResults(resultSection, newResult, oldResult, comparisonMessage, d
   }
 
   const diff = newResult.totalCost - oldResult.totalCost;
-  const years = newResult.cumulativeCosts.length;
+  const years = newResult.spendSeries.length;
   if (Math.abs(diff) < 0.01) {
     comparisonMessage.textContent = `Both options cost about the same over ${years} years.`;
   } else if (diff > 0) {
@@ -234,14 +258,23 @@ function updateResults(resultSection, newResult, oldResult, comparisonMessage, d
 
   resultSection.removeAttribute('hidden');
 
+  const saleSummaryNew = document.getElementById('new-sale-summary');
+  const saleSummaryOld = document.getElementById('old-sale-summary');
+  if (saleSummaryNew) {
+    saleSummaryNew.textContent = `New car sale: ${formatCurrency(newResult.resaleValue)} received in year ${saleYear}.`;
+  }
+  if (saleSummaryOld) {
+    saleSummaryOld.textContent = `Old car sale: ${formatCurrency(oldResult.resaleValue)} received in year ${saleYear}.`;
+  }
+
   const chartConfig = {
     type: 'line',
     data: {
-      labels: newResult.cumulativeCosts.map((_, idx) => idx + 1),
+      labels: newResult.spendSeries.map((_, idx) => idx + 1),
       datasets: [
         {
-          label: 'New car',
-          data: newResult.cumulativeCosts,
+          label: 'New car spend',
+          data: newResult.spendSeries,
           borderColor: '#1e3a8a',
           backgroundColor: 'rgba(30, 58, 138, 0.08)',
           borderWidth: 2,
@@ -249,13 +282,53 @@ function updateResults(resultSection, newResult, oldResult, comparisonMessage, d
           fill: true,
         },
         {
-          label: 'Old car',
-          data: oldResult.cumulativeCosts,
+          label: 'Old car spend',
+          data: oldResult.spendSeries,
           borderColor: '#a16207',
           backgroundColor: 'rgba(161, 98, 7, 0.08)',
           borderWidth: 2,
           tension: 0.3,
           fill: true,
+        },
+        {
+          label: 'New car value',
+          data: newResult.valueSeries,
+          borderColor: '#1e3a8a',
+          borderDash: [6, 4],
+          backgroundColor: 'rgba(30, 58, 138, 0.0)',
+          borderWidth: 2,
+          tension: 0.3,
+          fill: false,
+        },
+        {
+          label: 'Old car value',
+          data: oldResult.valueSeries,
+          borderColor: '#a16207',
+          borderDash: [6, 4],
+          backgroundColor: 'rgba(161, 98, 7, 0.0)',
+          borderWidth: 2,
+          tension: 0.3,
+          fill: false,
+        },
+        {
+          label: 'New car sale event',
+          data: newResult.valueSeries.map((value, idx, arr) => (idx === arr.length - 1 ? value : null)),
+          borderColor: '#1e3a8a',
+          backgroundColor: '#1e3a8a',
+          borderWidth: 0,
+          pointRadius: 6,
+          pointHoverRadius: 7,
+          showLine: false,
+        },
+        {
+          label: 'Old car sale event',
+          data: oldResult.valueSeries.map((value, idx, arr) => (idx === arr.length - 1 ? value : null)),
+          borderColor: '#a16207',
+          backgroundColor: '#a16207',
+          borderWidth: 0,
+          pointRadius: 6,
+          pointHoverRadius: 7,
+          showLine: false,
         },
       ],
     },
@@ -266,7 +339,7 @@ function updateResults(resultSection, newResult, oldResult, comparisonMessage, d
           title: { display: true, text: 'Year' },
         },
         y: {
-          title: { display: true, text: 'Cumulative cost (BGN)' },
+          title: { display: true, text: 'Cumulative cost (EUR)' },
           ticks: {
             callback: (value) => numberFormatter.format(value),
           },
