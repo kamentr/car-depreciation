@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Car Cost Projection</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="static/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <p class="eyebrow">Cost of Ownership Simulator</p>
+      <h1>New vs Old Car Cost Projection</h1>
+      <p class="subtitle">Compare financing, running costs, and resale value across your chosen time horizon.</p>
+    </header>
+
+    <form id="cost-form" class="card form-grid">
+      <section class="section">
+        <h2>Common Inputs</h2>
+        <div class="grid-3">
+          <label>
+            <span class="label-head">
+              Projection period (years)
+              <span class="info-pop" tabindex="0" data-tooltip="How many years you want to project ownership for.">i</span>
+            </span>
+            <input type="number" name="projection_years" min="1" step="1" value="5" required>
+          </label>
+          <label>
+            <span class="label-head">
+              Annual inflation rate (%)
+              <span class="info-pop" tabindex="0" data-tooltip="Expected yearly inflation applied to insurance and running costs.">i</span>
+            </span>
+            <input type="number" name="inflation_rate" step="0.1" value="3.5" required>
+          </label>
+          <label>
+            <span class="label-head">
+              Annual discount rate (%)
+              <span class="info-pop" tabindex="0" data-tooltip="Optional required return rate to compute discounted totals.">i</span>
+            </span>
+            <input type="number" name="discount_rate" step="0.1" value="4.0">
+          </label>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>New Car</h2>
+        <div class="grid-4">
+          <label>
+            <span class="label-head">
+              Purchase price
+              <span class="info-pop" tabindex="0" data-tooltip="Sticker or dealer price for the new car in BGN.">i</span>
+            </span>
+            <input type="number" name="new_purchase_price" step="0.01" value="55000" required>
+          </label>
+          <label>
+            <span class="label-head">
+              Down payment
+              <span class="info-pop" tabindex="0" data-tooltip="Cash you plan to pay upfront when buying new.">i</span>
+            </span>
+            <input type="number" name="new_down_payment" step="0.01" value="11000">
+          </label>
+          <label>
+            <span class="label-head">
+              Loan term (years)
+              <span class="info-pop" tabindex="0" data-tooltip="Duration of the financing contract for the new car.">i</span>
+            </span>
+            <input type="number" name="new_loan_term_years" min="0" step="1" value="5">
+          </label>
+          <label>
+            <span class="label-head">
+              Annual interest rate (%)
+              <span class="info-pop" tabindex="0" data-tooltip="Nominal yearly percentage rate offered by the bank.">i</span>
+            </span>
+            <input type="number" name="new_annual_interest_rate" step="0.01" value="6.5">
+          </label>
+          <label>
+            <span class="label-head">
+              Residual value (%)
+              <span class="info-pop" tabindex="0" data-tooltip="Expected resale as a percent of the purchase price.">i</span>
+            </span>
+            <input type="number" name="new_residual_pct" step="0.01" value="45">
+          </label>
+          <label>
+            <span class="label-head">
+              Residual value (€)
+              <span class="info-pop" tabindex="0" data-tooltip="Use a fixed resale value instead of a percentage.">i</span>
+            </span>
+            <input type="number" name="new_residual_value" step="0.01" value="0">
+          </label>
+          <label>
+            <span class="label-head">
+              Annual insurance (€)
+              <span class="info-pop" tabindex="0" data-tooltip="Combined casco + third-party insurance per year.">i</span>
+            </span>
+            <input type="number" name="new_annual_insurance" step="0.01" value="900">
+          </label>
+          <label>
+            <span class="label-head">
+              Annual maintenance (€)
+              <span class="info-pop" tabindex="0" data-tooltip="Servicing, repairs, tyres, and consumables for a year.">i</span>
+            </span>
+            <input type="number" name="new_annual_maintenance" step="0.01" value="600">
+          </label>
+          <label>
+            <span class="label-head">
+              Other annual costs (€)
+              <span class="info-pop" tabindex="0" data-tooltip="Road tax, parking, toll tags, detailing, etc.">i</span>
+            </span>
+            <input type="number" name="new_annual_other" step="0.01" value="300">
+          </label>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Old Car</h2>
+        <div class="grid-4">
+          <label>
+            <span class="label-head">
+              Purchase price
+              <span class="info-pop" tabindex="0" data-tooltip="Expected price paid for the used car in BGN.">i</span>
+            </span>
+            <input type="number" name="old_purchase_price" step="0.01" value="18000" required>
+          </label>
+          <label>
+            <span class="label-head">
+              Down payment
+              <span class="info-pop" tabindex="0" data-tooltip="Upfront cash contribution towards the used car.">i</span>
+            </span>
+            <input type="number" name="old_down_payment" step="0.01" value="3000" data-old-loan>
+          </label>
+          <label class="checkbox-label full-span">
+            <input type="checkbox" name="old_cash_purchase">
+            <span>Buy this used car with cash (no loan payments).</span>
+          </label>
+          <label>
+            <span class="label-head">
+              Loan term (years)
+              <span class="info-pop" tabindex="0" data-tooltip="Duration of the used-car loan.">i</span>
+            </span>
+            <input type="number" name="old_loan_term_years" min="0" step="1" value="3" data-old-loan>
+          </label>
+          <label>
+            <span class="label-head">
+              Annual interest rate (%)
+              <span class="info-pop" tabindex="0" data-tooltip="Rate offered on the used-car loan.">i</span>
+            </span>
+            <input type="number" name="old_annual_interest_rate" step="0.01" value="8.5" data-old-loan>
+          </label>
+          <label>
+            <span class="label-head">
+              Residual value (%)
+              <span class="info-pop" tabindex="0" data-tooltip="Percent of today's price you expect to recover when selling.">i</span>
+            </span>
+            <input type="number" name="old_residual_pct" step="0.01" value="25">
+          </label>
+          <label>
+            <span class="label-head">
+              Residual value (€)
+              <span class="info-pop" tabindex="0" data-tooltip="Fixed resale value after the projection period.">i</span>
+            </span>
+            <input type="number" name="old_residual_value" step="0.01" value="0">
+          </label>
+          <label>
+            <span class="label-head">
+              Annual insurance (€)
+              <span class="info-pop" tabindex="0" data-tooltip="Yearly insurance bundle for the used car.">i</span>
+            </span>
+            <input type="number" name="old_annual_insurance" step="0.01" value="600">
+          </label>
+          <label>
+            <span class="label-head">
+              Annual maintenance (€)
+              <span class="info-pop" tabindex="0" data-tooltip="Average yearly servicing and repairs for the used car.">i</span>
+            </span>
+            <input type="number" name="old_annual_maintenance" step="0.01" value="1200">
+          </label>
+          <label>
+            <span class="label-head">
+              Other annual costs (€)
+              <span class="info-pop" tabindex="0" data-tooltip="Any remaining yearly ownership expenses.">i</span>
+            </span>
+            <input type="number" name="old_annual_other" step="0.01" value="400">
+          </label>
+        </div>
+      </section>
+
+      <div class="actions">
+        <button type="submit">Compare Costs</button>
+      </div>
+    </form>
+
+    <section id="results" class="card results" hidden>
+      <h2>Results</h2>
+      <p id="comparison-message" class="callout"></p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Metric</th>
+              <th>New car</th>
+              <th>Old car</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Monthly payment</td>
+              <td id="new-monthly-payment"></td>
+              <td id="old-monthly-payment"></td>
+            </tr>
+            <tr>
+              <td>Total loan payments</td>
+              <td id="new-total-loan"></td>
+              <td id="old-total-loan"></td>
+            </tr>
+            <tr>
+              <td>Total running costs</td>
+              <td id="new-running"></td>
+              <td id="old-running"></td>
+            </tr>
+            <tr>
+              <td>Resale value</td>
+              <td id="new-resale"></td>
+              <td id="old-resale"></td>
+            </tr>
+            <tr>
+              <td>Total cost</td>
+              <td id="new-total"></td>
+              <td id="old-total"></td>
+            </tr>
+            <tr>
+              <td>Average annual cost</td>
+              <td id="new-average"></td>
+              <td id="old-average"></td>
+            </tr>
+            <tr id="discount-row">
+              <td>Discounted total cost</td>
+              <td id="new-discount"></td>
+              <td id="old-discount"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="chart-card">
+        <h3>Cumulative cost over time</h3>
+        <canvas id="costChart" height="120"></canvas>
+      </div>
+    </section>
+  </main>
+
+  <script src="static/app.js"></script>
+</body>
+</html>
