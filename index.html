@@ -34,14 +34,14 @@
               Annual inflation rate (%)
               <span class="info-pop" tabindex="0" data-tooltip="Expected yearly inflation applied to insurance and running costs.">i</span>
             </span>
-            <input type="number" name="inflation_rate" step="0.1" value="3.5" required>
+            <input type="number" name="inflation_rate" step="0.1" value="5.5" required>
           </label>
           <label>
             <span class="label-head">
               Annual discount rate (%)
-              <span class="info-pop" tabindex="0" data-tooltip="Optional required return rate to compute discounted totals.">i</span>
+              <span class="info-pop" tabindex="0" data-tooltip="Your required annual return to express future costs in today's euros (e.g., opportunity cost).">i</span>
             </span>
-            <input type="number" name="discount_rate" step="0.1" value="4.0">
+            <input type="number" name="discount_rate" step="0.1" value="0.0">
           </label>
         </div>
       </section>
@@ -52,16 +52,16 @@
           <label>
             <span class="label-head">
               Purchase price
-              <span class="info-pop" tabindex="0" data-tooltip="Sticker or dealer price for the new car in BGN.">i</span>
+              <span class="info-pop" tabindex="0" data-tooltip="Sticker or dealer price for the new car in EUR.">i</span>
             </span>
-            <input type="number" name="new_purchase_price" step="0.01" value="55000" required>
+            <input type="number" name="new_purchase_price" step="0.01" value="35000" required>
           </label>
           <label>
             <span class="label-head">
               Down payment
               <span class="info-pop" tabindex="0" data-tooltip="Cash you plan to pay upfront when buying new.">i</span>
             </span>
-            <input type="number" name="new_down_payment" step="0.01" value="11000">
+            <input type="number" name="new_down_payment" step="0.01" value="15000">
           </label>
           <label>
             <span class="label-head">
@@ -75,7 +75,7 @@
               Annual interest rate (%)
               <span class="info-pop" tabindex="0" data-tooltip="Nominal yearly percentage rate offered by the bank.">i</span>
             </span>
-            <input type="number" name="new_annual_interest_rate" step="0.01" value="6.5">
+            <input type="number" name="new_annual_interest_rate" step="0.01" value="3.8">
           </label>
           <label>
             <span class="label-head">
@@ -103,14 +103,14 @@
               Annual maintenance (€)
               <span class="info-pop" tabindex="0" data-tooltip="Servicing, repairs, tyres, and consumables for a year.">i</span>
             </span>
-            <input type="number" name="new_annual_maintenance" step="0.01" value="600">
+            <input type="number" name="new_annual_maintenance" step="0.01" value="400">
           </label>
           <label>
             <span class="label-head">
               Other annual costs (€)
               <span class="info-pop" tabindex="0" data-tooltip="Road tax, parking, toll tags, detailing, etc.">i</span>
             </span>
-            <input type="number" name="new_annual_other" step="0.01" value="300">
+            <input type="number" name="new_annual_other" step="0.01" value="0">
           </label>
         </div>
       </section>
@@ -121,7 +121,7 @@
           <label>
             <span class="label-head">
               Purchase price
-              <span class="info-pop" tabindex="0" data-tooltip="Expected price paid for the used car in BGN.">i</span>
+              <span class="info-pop" tabindex="0" data-tooltip="Expected price paid for the used car in EUR.">i</span>
             </span>
             <input type="number" name="old_purchase_price" step="0.01" value="18000" required>
           </label>
@@ -133,7 +133,7 @@
             <input type="number" name="old_down_payment" step="0.01" value="3000" data-old-loan>
           </label>
           <label class="checkbox-label full-span">
-            <input type="checkbox" name="old_cash_purchase">
+            <input type="checkbox" name="old_cash_purchase" checked>
             <span>Buy this used car with cash (no loan payments).</span>
           </label>
           <label>
@@ -148,14 +148,14 @@
               Annual interest rate (%)
               <span class="info-pop" tabindex="0" data-tooltip="Rate offered on the used-car loan.">i</span>
             </span>
-            <input type="number" name="old_annual_interest_rate" step="0.01" value="8.5" data-old-loan>
+            <input type="number" name="old_annual_interest_rate" step="0.01" value="3.8" data-old-loan>
           </label>
           <label>
             <span class="label-head">
               Residual value (%)
               <span class="info-pop" tabindex="0" data-tooltip="Percent of today's price you expect to recover when selling.">i</span>
             </span>
-            <input type="number" name="old_residual_pct" step="0.01" value="25">
+            <input type="number" name="old_residual_pct" step="0.01" value="35">
           </label>
           <label>
             <span class="label-head">
@@ -176,14 +176,14 @@
               Annual maintenance (€)
               <span class="info-pop" tabindex="0" data-tooltip="Average yearly servicing and repairs for the used car.">i</span>
             </span>
-            <input type="number" name="old_annual_maintenance" step="0.01" value="1200">
+            <input type="number" name="old_annual_maintenance" step="0.01" value="1000">
           </label>
           <label>
             <span class="label-head">
               Other annual costs (€)
               <span class="info-pop" tabindex="0" data-tooltip="Any remaining yearly ownership expenses.">i</span>
             </span>
-            <input type="number" name="old_annual_other" step="0.01" value="400">
+            <input type="number" name="old_annual_other" step="0.01" value="200">
           </label>
         </div>
       </section>
@@ -236,6 +236,11 @@
               <td id="new-average"></td>
               <td id="old-average"></td>
             </tr>
+            <tr>
+              <td>Net worth impact</td>
+              <td id="new-net"></td>
+              <td id="old-net"></td>
+            </tr>
             <tr id="discount-row">
               <td>Discounted total cost</td>
               <td id="new-discount"></td>
@@ -243,6 +248,11 @@
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <div class="sale-summary">
+        <p id="new-sale-summary"></p>
+        <p id="old-sale-summary"></p>
       </div>
 
       <div class="chart-card">
