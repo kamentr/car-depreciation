@@ -27,7 +27,7 @@
               Projection period (years)
               <span class="info-pop" tabindex="0" data-tooltip="How many years you want to project ownership for.">i</span>
             </span>
-            <input type="number" name="projection_years" min="1" step="1" value="5" required>
+            <input type="number" name="projection_years" min="1" step="1" value="20" required>
           </label>
           <label>
             <span class="label-head">
@@ -43,6 +43,13 @@
             </span>
             <input type="number" name="discount_rate" step="0.1" value="0.0">
           </label>
+          <label>
+            <span class="label-head">
+              Replacement cycle (years)
+              <span class="info-pop" tabindex="0" data-tooltip="How often you replace the car with another one (applies to both scenarios).">i</span>
+            </span>
+            <input type="number" name="replacement_cycle_years" min="1" step="1" value="5">
+          </label>
         </div>
       </section>
 
@@ -54,14 +61,21 @@
               Purchase price
               <span class="info-pop" tabindex="0" data-tooltip="Sticker or dealer price for the new car in EUR.">i</span>
             </span>
-            <input type="number" name="new_purchase_price" step="0.01" value="35000" required>
+            <input type="number" name="new_purchase_price" step="0.01" value="30000" required>
+          </label>
+          <label>
+            <span class="label-head">
+              Purchase price inflation (% per cycle)
+              <span class="info-pop" tabindex="0" data-tooltip="How much the new-car price grows each time you replace it.">i</span>
+            </span>
+            <input type="number" name="new_price_inflation" step="0.1" value="8.0">
           </label>
           <label>
             <span class="label-head">
               Down payment
               <span class="info-pop" tabindex="0" data-tooltip="Cash you plan to pay upfront when buying new.">i</span>
             </span>
-            <input type="number" name="new_down_payment" step="0.01" value="15000">
+            <input type="number" name="new_down_payment" step="0.01" value="7500">
           </label>
           <label>
             <span class="label-head">
@@ -82,7 +96,7 @@
               Residual value (%)
               <span class="info-pop" tabindex="0" data-tooltip="Expected resale as a percent of the purchase price.">i</span>
             </span>
-            <input type="number" name="new_residual_pct" step="0.01" value="45">
+            <input type="number" name="new_residual_pct" step="0.01" value="40">
           </label>
           <label>
             <span class="label-head">
@@ -96,14 +110,14 @@
               Annual insurance (€)
               <span class="info-pop" tabindex="0" data-tooltip="Combined casco + third-party insurance per year.">i</span>
             </span>
-            <input type="number" name="new_annual_insurance" step="0.01" value="900">
+            <input type="number" name="new_annual_insurance" step="0.01" value="1200">
           </label>
           <label>
             <span class="label-head">
               Annual maintenance (€)
               <span class="info-pop" tabindex="0" data-tooltip="Servicing, repairs, tyres, and consumables for a year.">i</span>
             </span>
-            <input type="number" name="new_annual_maintenance" step="0.01" value="400">
+            <input type="number" name="new_annual_maintenance" step="0.01" value="300">
           </label>
           <label>
             <span class="label-head">
@@ -123,14 +137,21 @@
               Purchase price
               <span class="info-pop" tabindex="0" data-tooltip="Expected price paid for the used car in EUR.">i</span>
             </span>
-            <input type="number" name="old_purchase_price" step="0.01" value="18000" required>
+            <input type="number" name="old_purchase_price" step="0.01" value="17700" required>
+          </label>
+          <label>
+            <span class="label-head">
+              Purchase price inflation (% per cycle)
+              <span class="info-pop" tabindex="0" data-tooltip="Percent increase applied to the used-car price each replacement.">i</span>
+            </span>
+            <input type="number" name="old_price_inflation" step="0.1" value="8.0">
           </label>
           <label>
             <span class="label-head">
               Down payment
               <span class="info-pop" tabindex="0" data-tooltip="Upfront cash contribution towards the used car.">i</span>
             </span>
-            <input type="number" name="old_down_payment" step="0.01" value="3000" data-old-loan>
+            <input type="number" name="old_down_payment" step="0.01" value="0" data-old-loan>
           </label>
           <label class="checkbox-label full-span">
             <input type="checkbox" name="old_cash_purchase" checked>
@@ -155,7 +176,7 @@
               Residual value (%)
               <span class="info-pop" tabindex="0" data-tooltip="Percent of today's price you expect to recover when selling.">i</span>
             </span>
-            <input type="number" name="old_residual_pct" step="0.01" value="35">
+            <input type="number" name="old_residual_pct" step="0.01" value="30">
           </label>
           <label>
             <span class="label-head">
@@ -169,21 +190,21 @@
               Annual insurance (€)
               <span class="info-pop" tabindex="0" data-tooltip="Yearly insurance bundle for the used car.">i</span>
             </span>
-            <input type="number" name="old_annual_insurance" step="0.01" value="600">
+            <input type="number" name="old_annual_insurance" step="0.01" value="708">
           </label>
           <label>
             <span class="label-head">
               Annual maintenance (€)
               <span class="info-pop" tabindex="0" data-tooltip="Average yearly servicing and repairs for the used car.">i</span>
             </span>
-            <input type="number" name="old_annual_maintenance" step="0.01" value="1000">
+            <input type="number" name="old_annual_maintenance" step="0.01" value="177">
           </label>
           <label>
             <span class="label-head">
               Other annual costs (€)
               <span class="info-pop" tabindex="0" data-tooltip="Any remaining yearly ownership expenses.">i</span>
             </span>
-            <input type="number" name="old_annual_other" step="0.01" value="200">
+            <input type="number" name="old_annual_other" step="0.01" value="1500">
           </label>
         </div>
       </section>
@@ -258,6 +279,11 @@
       <div class="chart-card">
         <h3>Cumulative cost over time</h3>
         <canvas id="costChart" height="120"></canvas>
+      </div>
+
+      <div class="chart-card">
+        <h3>Annual cost breakdown</h3>
+        <canvas id="costBreakdownChart" height="180"></canvas>
       </div>
     </section>
   </main>
